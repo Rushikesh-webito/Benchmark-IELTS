@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable implements JWTSubject
+
+class User extends Authenticatable implements JWTSubject, CanResetPasswordContract
 {
     use HasFactory, Notifiable;
 
@@ -21,6 +22,11 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'profile_image',  // New field
+        'mobile_no',    // New field
+        'role_id',      // New field
+        'timezone',     // New field
+        'status',       // New field
     ];
 
     /**
@@ -31,10 +37,11 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
@@ -43,6 +50,9 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role_id' => 'integer',   // Casting role_id as integer
+            'status' => 'string',      // Casting status as string
+            'timezone' => 'string',    // Casting timezone as string
         ];
     }
 
@@ -59,5 +69,11 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    // Optional: Define a relationship to the Role model
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }
